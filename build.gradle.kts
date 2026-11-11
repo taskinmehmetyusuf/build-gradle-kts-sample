@@ -1,41 +1,50 @@
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
 
-buildscript {
+plugins {
+    id("com.android.application")
+    id("kotlin-android")
+    id("kotlin-android-extensions")
+}
 
-    // Groovy の場合、以下で `extra` に `kotlin_version` をセットできる
-    //     ext.kotlin_version = "1.3.11"
-    // これは以下と等価
-    //     (rootProject.)extensions.extraProperties.set("kotlin_version", "1.3.11")
-    // Gradle の世界では以下が成立する (= project自体のプロパティのように参照できる)
-    //     ext.kotlin_version == (rootProject.)kotlin_version ==  "1.3.11"
+android {
+    compileSdkVersion(28)
 
-    // Kotlin DSL では `ext` は `extra` になるが、 Kotlin では以下のように書くことはできない
-    //     extra.kotlin_version = "1.3.11"
-    // 明示的に `set` を呼ぶことはできるが、 type safe じゃないし補完も効かない
-    //     extra.set("kotlin_version", "1.3.11")  // `get` 時に `String?` へのキャストが必須
-    // 委譲プロパティを使って通常の変数のようにアクセスできる拡張を用意してくれている
-    // 以下のように書くと、 extra に set しつつ、その後も変数として参照できる
-    val kotlin_version by extra("1.3.11")
-
-    repositories {
-        google()
-        jcenter()
+    defaultConfig {
+        applicationId = "sh.nothing.buildgradlekts"
+        minSdkVersion(21)
+        targetSdkVersion(28)
+        versionCode = 1
+        versionName = "1.0"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
-    dependencies {
-        classpath("com.android.tools.build:gradle:3.3.0")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version")
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+
+    buildTypes.invoke {
+        "release" {
+            isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
     }
 }
 
-allprojects {
-    repositories {
-        google()
-        jcenter()
-    }
-}
-
-task<Delete>( "clean") {
-    delete(rootProject.buildDir)
+dependencies {
+    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:${rootProject.extra["kotlin_version"]}")
+    implementation("androidx.appcompat:appcompat:1.0.0-beta01")
+    implementation("androidx.core:core-ktx:1.1.0-alpha03")
+    implementation("androidx.constraintlayout:constraintlayout:1.1.3")
+    implementation("com.google.android.material:material:1.0.0-beta01")
+    testImplementation("junit:junit:4.12")
+    androidTestImplementation("androidx.test:runner:1.1.0-alpha4")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.1.0-alpha4")
 }
